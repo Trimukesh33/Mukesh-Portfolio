@@ -498,13 +498,37 @@ nav a:hover {
   font-size: 14px;
   color: #d1d5db;
 }
+/* ==========================================================================
+   GLOBAL STRUCTURE & ANTI-SPILLOVER SAFEGUARDS
+   ========================================================================== */
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Strict barrier preventing horizontal mobile scrolling layout splits */
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  background: var(--bg, #0b0f19);
+  color: var(--text, #ffffff);
+}
+
+section {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 8%;
+  box-sizing: border-box;
+  position: relative;
+}
 
 /* ==========================================================================
-   FEATURED WORKS / PROJECTS LAYOUT (FIXED ANTI-STRETCH & FLUID GRID)
+   FEATURED WORKS / PROJECTS LAYOUT
    ========================================================================== */
 .projects-grid {
   display: grid;
-  /* Automatically scales layout dimensions based on monitor real estate */
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 28px;
   width: 100%;
@@ -517,36 +541,34 @@ nav a:hover {
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
   display: flex;
   flex-direction: column;
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: var(--card, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  height: 100%; /* Ensures all cards in a row match heights naturally */
+  height: 100%;
 }
 
 .project-card:hover {
   transform: translateY(-8px);
 }
 
-/* Fluid Media Frame - Prevents vertical stretching */
 .project-image-wrapper {
   width: 100%;
-  height: 220px; /* Fixed anchor height for a clean landscape ratio */
+  height: 220px;
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0; /* Strict protection against layout distortion */
+  flex-shrink: 0;
 }
 
 .project-img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Crops cleanly inside bounds instead of pulling/skewing */
+  object-fit: cover;
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   filter: saturate(0.95) contrast(1.02);
 }
 
-/* Cinematic card lighting overlays */
 .project-image-overlay {
   position: absolute;
   inset: 0;
@@ -563,12 +585,11 @@ nav a:hover {
   background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(124, 58, 237, 0.05));
 }
 
-/* Content Area Config */
 .project-content {
   padding: 28px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Pushes card text containers symmetrically */
+  flex-grow: 1;
   position: relative;
   z-index: 2;
 }
@@ -581,7 +602,7 @@ nav a:hover {
 }
 
 .project-card p {
-  color: var(--muted);
+  color: var(--muted, #94a3b8);
   margin-top: 12px;
   line-height: 1.7;
   font-size: 0.92rem;
@@ -592,7 +613,7 @@ nav a:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: auto; /* Aligns project badges dynamically along the baseline */
+  margin-top: auto;
   padding-top: 16px;
 }
 
@@ -632,7 +653,7 @@ nav a:hover {
 }
 
 .project-link:hover {
-  color: var(--secondary);
+  color: var(--secondary, #7c3aed);
 }
 
 .project-link:hover i {
@@ -640,23 +661,218 @@ nav a:hover {
 }
 
 /* ==========================================================================
-   PROJECT RESPONSIVE OVERRIDES (TABLET & MOBILE FIXES)
+   IMMERSIVE POPUP MODAL ARCHITECTURE (CERTIFICATIONS)
+   ========================================================================== */
+.cert-clickable-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 5;
+  pointer-events: auto !important;
+}
+
+.cert-clickable-card * {
+  pointer-events: none; /* Prevents interior labels from breaking click targets */
+}
+
+.cert-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cert-card-top i {
+  font-size: 2rem;
+  color: var(--secondary, #7c3aed);
+}
+
+.cert-type-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted, #94a3b8);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.view-cert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 18px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--secondary, #7c3aed);
+  opacity: 0.6;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.cert-clickable-card:hover .view-cert-badge {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.certificate-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 999999 !important; /* Absolute top priority position overlay layout stack */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  padding: 24px;
+}
+
+.certificate-modal-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-close-trigger {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000000 !important;
+  pointer-events: auto !important;
+}
+
+.modal-close-trigger:hover {
+  background: #ffffff;
+  color: #000000;
+  transform: rotate(90deg);
+}
+
+.modal-window-content {
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: scale(0.92);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: auto;
+}
+
+.certificate-modal-overlay.is-active .modal-window-content {
+  transform: scale(1);
+}
+
+.modal-window-content img {
+  max-width: 100%;
+  max-height: 75vh; /* Bounds tall height assets cleanly from causing spillover */
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Enforces strict aspect ratio scaling safety checks */
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+}
+
+/* ==========================================================================
+   BREAKPOINTS & RESPONSIVE DESIGN OVERRIDES
    ========================================================================== */
 @media (max-width: 992px) {
   .projects-grid {
-    /* Breaks multiple columns early so cards don't get squished horizontally */
-    grid-template-columns: 1fr !important; 
+    grid-template-columns: 1fr !important; /* Converts project layout early into singular column blocks */
     gap: 24px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .experience-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-card {
+    padding: 30px 24px;
+    position: relative;
+    z-index: 5;
+  }
+
+  .timeline-card h3 {
+    font-size: 24px;
+  }
+
+  /* Mobile Overlay Modifications */
+  .certificate-modal-overlay {
+    padding: 16px;
+  }
+
+  .modal-window-content {
+    max-width: 100%;
+    transform: scale(1) !important;
+  }
+
+  .modal-window-content img {
+    max-height: 60vh; /* Scaled safe height limits for mobile browsers */
+  }
+
+  .modal-close-trigger {
+    top: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+    background: rgba(0, 0, 0, 0.7);
+  }
+}
+
+@media (max-width: 576px) {
+  section {
+    padding: 50px 5%;
+  }
+
+  .section-header h2 {
+    font-size: 32px;
+  }
+
+  .hero-left h1 {
+    font-size: 40px;
+  }
+
+  .image-wrapper {
+    max-width: 280px;
+    height: 360px;
+    border-radius: 24px;
+  }
+
   .project-content {
     padding: 22px;
   }
 
   .project-image-wrapper {
-    height: 190px; /* Scales aspect-ratio correctly on compact mobile width profiles */
+    height: 190px;
+  }
+
+  .ui1 { top: 20px; left: -10px; }
+  .ui2 { bottom: 20px; right: -10px; }
+  .ui3 { display: none; }
+
+  .modal-window-content img {
+    max-height: 50vh; /* Extra safety ceiling for micro smartphone screen spaces */
   }
 }
 
@@ -911,52 +1127,4 @@ nav a:hover {
     text-align: center;
     max-width: 100%;
   }
-}
-
-/* Compact Mobile Viewports (Smartphones & Foldable screen states) */
-@media (max-width: 768px) {
-  .experience-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .timeline-card {
-    padding: 30px 24px;
-  }
-
-  .timeline-card h3 {
-    font-size: 24px;
-  }
-
-  .modal-close-trigger {
-    top: 20px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 576px) {
-  section {
-    padding: 50px 5%;
-  }
-
-  .section-header h2 {
-    font-size: 32px;
-  }
-
-  .hero-left h1 {
-    font-size: 40px;
-  }
-
-  .image-wrapper {
-    max-width: 280px;
-    height: 360px;
-    border-radius: 24px;
-  }
-
-  /* Compressing floating card layout parameters snugly */
-  .ui1 { top: 20px; left: -10px; }
-  .ui2 { bottom: 20px; right: -10px; }
-  .ui3 { display: none; } /* Drop 3rd floating element on small screens to prevent visual overlap */
 }
